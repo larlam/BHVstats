@@ -28,7 +28,7 @@ L. Lammers, T. M. W. Nye, and S. F. Huckemann (2024).
 https://arxiv.org/abs/2407.03977.
 
 <a id="5">[5]</a> 
-LL. Lammers, D. T. Van, and S. F. Huckemann (2023). 
+L. Lammers, D. T. Van, and S. F. Huckemann (2023). 
 “Sticky Flavors”.
 https://arxiv.org/abs/2311.08846.
 
