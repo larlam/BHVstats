@@ -2,7 +2,7 @@ from bhvstats.phylo_geod import PhyloGeod
 from bhvstats.phylo_tree import PhyloTree
 
 
-def tree_distance(
+def distance(
     tree1: PhyloTree,
     tree2: PhyloTree,
     exterior=False,

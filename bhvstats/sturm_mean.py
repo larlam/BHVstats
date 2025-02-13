@@ -1,5 +1,5 @@
 import random
-from bhvstats.tree_distance import tree_distance
+from bhvstats.tree_distance import distance
 from bhvstats.eval_geod import eval_geod
 from bhvstats.phylo_tree import PhyloTree
 
@@ -37,7 +37,7 @@ def sturm_mean(sample: list[PhyloTree]) -> PhyloTree:
         j = random.randint(0, size - 1)
         treej = sample[j]
         cur_mean = eval_geod(prev_mean, treej, 1 / (i + 2))
-        dist = tree_distance(prev_mean, cur_mean)
+        dist = distance(prev_mean, cur_mean)
         if dist < 1e-4:
             ind += 1
         else:
@@ -66,6 +66,6 @@ def frechet_function(tree: PhyloTree, sample: list[PhyloTree]) -> float:
     size = len(sample)
     frech = 0.0
     for t in sample:
-        frech += tree_distance(tree, t) ** 2
+        frech += distance(tree, t) ** 2
     frech = frech / size
     return frech

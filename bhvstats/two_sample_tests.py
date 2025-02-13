@@ -11,7 +11,7 @@ from bhvstats.mult_hyp import (
     simes_correction,
     bonferroni_correction,
 )
-from bhvstats.tree_distance import tree_distance
+from bhvstats.tree_distance import distance
 from bhvstats.phylo_tree import PhyloTree
 
 
@@ -659,7 +659,7 @@ def cos_tree(tree_1: PhyloTree, tree_2: PhyloTree) -> float:
         cos_alex = 0
     # use law of cosines to get the derivative
     else:
-        dist = tree_distance(tree_1, tree_2)
+        dist = distance(tree_1, tree_2)
         cos_alex = (norm1**2 + norm2**2 - dist**2) / (2 * norm1 * norm2)
 
     return cos_alex

@@ -1,4 +1,4 @@
-# bhvstats
+# BHVstats
 
 **bhvstats** is a Python package for statistical analysis of phylogenetic trees in 
 *Billera-Holmes-Vogtmann (BHV) spaces* [1]. The package includes implementations 

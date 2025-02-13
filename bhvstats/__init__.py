@@ -17,3 +17,5 @@ from bhvstats.new2phylo import new2phylo, new2distmat
 from bhvstats.project_trees import proj_trees
 from bhvstats.prox_split_degrees import ProxSplit
 from bhvstats.sturm_mean import sturm_mean, frechet_function
+from bhvstats.tree_distance import distance
+
