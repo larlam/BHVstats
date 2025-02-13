@@ -1,6 +1,16 @@
 # bhvstats
 
-## Description
+**bhvstats** is a Python package for statistical analysis of phylogenetic trees in 
+*Billera-Holmes-Vogtmann (BHV) spaces* [1]. The package includes implementations 
+of basic BHV space tools for computing *geodesic distances* between trees 
+[2] and *Fr\'echet means* of trees [3][4]. The package also includes tools for
+statistical analysis in the the presence of *stickiness* [4][5][6].
+
+
+## Acknowledgements
+
+This work was supported by  the DFG Research Training Group 2088 “Discovering 
+structure in complex data: Statistics meets Optimization and Inverse Problems”. 
 
 ## License
 
