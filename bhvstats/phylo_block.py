@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Optional
-from stickytests.bhv.phylo_split import PhyloSplit
+from bhvstats.phylo_split import PhyloSplit
 from copy import copy
 
 

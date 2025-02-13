@@ -1,7 +1,7 @@
 import pytest
 from bhvstats.phylo_geod import PhyloGeod
 from bhvstats.phylo_tree import PhyloTree
-from bhvstats.tree_distance import tree_distance
+from bhvstats.tree_distance import distance
 
 
 def get_geod():
@@ -40,7 +40,7 @@ def test_midpoint():
     midp = g.eval(0.5)
     t1, t2 = g.get_trees()
 
-    d1 = tree_distance(t1, midp)
-    d2 = tree_distance(t2, midp)
+    d1 = distance(t1, midp)
+    d2 = distance(t2, midp)
     midlen = 2.7293989189202916 / 2
     assert d1 == pytest.approx(midlen) and d2 == pytest.approx(midlen)

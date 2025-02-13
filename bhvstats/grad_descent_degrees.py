@@ -3,7 +3,7 @@ from copy import deepcopy
 import numpy as np
 from numpy import ndarray
 from bhvstats.eval_geod import eval_geod
-from bhvstats.tree_distance import tree_distance
+from bhvstats.tree_distance import distance
 from bhvstats.phylo_tree import PhyloTree
 
 
@@ -57,9 +57,7 @@ class DegreeDescent:
         """
         # pick a direction that is less then pi away
         possdir = np.where(np.abs(self.__cosines) < 1)[0]
-        prop_dir = random.choices(
-            possdir, weights=self.__lengths[possdir], k=1
-        )[0]
+        prop_dir = random.choices(possdir, weights=self.__lengths[possdir], k=1)[0]
         # angle = np.arccos(self.__cosines[prop_dir])
         prop_dir = self.__sample[prop_dir]
         angle = np.arccos(
@@ -104,7 +102,7 @@ def compute_cosines(direction: PhyloTree, sample: list[PhyloTree]) -> ndarray:
     cosines = np.zeros(sample_size)
     for i in range(sample_size):
         tree = sample[i]
-        dist = tree_distance(direction, tree)
+        dist = distance(direction, tree)
         norm = tree.norm()
         if norm != 0:
             cosines[i] = (norm**2 + 1 - dist**2) / (2 * norm)

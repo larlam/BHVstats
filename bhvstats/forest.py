@@ -91,8 +91,7 @@ class Forest(Graph):
         else:
             neighbors = list(self.neighbors(vert))
             length = (
-                self[neighbors[0]][vert]["weight"]
-                + self[neighbors[1]][vert]["weight"]
+                self[neighbors[0]][vert]["weight"] + self[neighbors[1]][vert]["weight"]
             )
 
             self.remove_node(vert)
@@ -117,7 +116,7 @@ class Forest(Graph):
             raise ValueError("Graph is not a tree.")
 
         # import locally to avoid circ. dependency
-        from stickytests.bhv.phylo_tree import PhyloTree
+        from bhvstats.phylo_tree import PhyloTree
 
         graph = copy(self)
         # start by trimming vertices with degree 2 & merging connected edges
@@ -145,9 +144,7 @@ class Forest(Graph):
         edge_lengths = []
 
         if 0 not in leaves.values():
-            root_candidates = [
-                vert for vert in vdeg1 if str(vert) not in leaves.keys()
-            ]
+            root_candidates = [vert for vert in vdeg1 if str(vert) not in leaves.keys()]
             if len(root_candidates) != 1:
                 raise ValueError("Graph has multiple possible roots.")
             leaves = copy(leaves)

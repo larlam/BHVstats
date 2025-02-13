@@ -4,7 +4,7 @@ import numpy as np
 from numpy import ndarray
 from scipy.optimize import fsolve, minimize
 from bhvstats.eval_geod import eval_geod
-from bhvstats.tree_distance import tree_distance
+from bhvstats.tree_distance import distance
 from bhvstats.phylo_tree import PhyloTree
 
 
@@ -63,11 +63,9 @@ class ProxSplit:
                 # need to distinguish between the step size on the sphere and BHV space
                 # stepsize_ang = np.sin(angle) / (self.__iteration + 2)
                 # fnc = lambda x: (self.iteration + 1) * x**2 - self.lengths[i] / self.lengthsum * np.cos(angle - x)
-                fnc = lambda x: (
-                    self.iteration + 1
-                ) ** 0.05 * x**2 - self.lengths[i] / self.lengthsum * np.cos(
-                    angle - x
-                )
+                fnc = lambda x: (self.iteration + 1) ** 0.05 * x**2 - self.lengths[
+                    i
+                ] / self.lengthsum * np.cos(angle - x)
                 stepsize_ang = (
                     minimize(fnc, np.pi / 2, bounds=[(0, np.pi)]).x[0] / np.pi
                 )
@@ -98,9 +96,7 @@ class ProxSplitRandom(ProxSplit):
         """
         # pick a direction that is less then pi away
         possdir = np.where(np.abs(self.cosines) < 1)[0]
-        prop_dir = random.choices(
-            possdir, weights=self.__lengths[possdir], k=1
-        )[0]
+        prop_dir = random.choices(possdir, weights=self.__lengths[possdir], k=1)[0]
         angle = np.arccos(self.cosines[prop_dir])
         prop_dir = self.sample[prop_dir]
         prop_dir.normalize()
@@ -145,7 +141,7 @@ def compute_cosines(direction: PhyloTree, sample: list[PhyloTree]) -> ndarray:
     cosines = np.zeros(sample_size)
     for i in range(sample_size):
         tree = sample[i]
-        dist = tree_distance(direction, tree)
+        dist = distance(direction, tree)
         norm = tree.norm()
         if norm != 0:
             cosines[i] = (norm**2 + 1 - dist**2) / (2 * norm)

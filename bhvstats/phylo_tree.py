@@ -26,9 +26,7 @@ class PhyloTree:
     def __eq__(self, other):
         if isinstance(other, PhyloTree):
             eq_splits = self.splits == other.splits
-            eq_leaves = np.array_equal(
-                self.pendant_lenghts, other.pendant_lenghts
-            )
+            eq_leaves = np.array_equal(self.pendant_lenghts, other.pendant_lenghts)
             return eq_splits and eq_leaves
         return False
 
@@ -83,7 +81,7 @@ class PhyloTree:
                 for split in self.splits.keys():
                     if new_split.is_compatible(split) == False:
                         print(
-                            "The split was not added as it is not compatible"
+                            "The split was not added as it is not compatible "
                             + "with the existing ones."
                         )
                         return
@@ -303,9 +301,7 @@ class PhyloTree:
         # start by creating the star tree
         for i in range(cur_node):
             graph.add_node(str(i))
-            graph.add_edge(
-                str(i), str(cur_node), weight=self.pendant_lenghts[i]
-            )
+            graph.add_edge(str(i), str(cur_node), weight=self.pendant_lenghts[i])
         cur_node += 1
 
         # next, we need a list of all splits
@@ -373,7 +369,7 @@ class PhyloTree:
         delimiter :
             The delimiter used for the Newick format.
         """
-        from stickytests.bhv.new2phylo import new2phylo
+        from bhvstats.new2phylo import new2phylo
 
         tree = new2phylo(s, leaves, delimiter)
         mat = tree.as_matrix()
