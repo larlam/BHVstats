@@ -2,6 +2,7 @@ from typing import Optional, Union
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+from copy import copy
 from numpy import ndarray
 from bhvstats.t2_test import twosamplet2test_unequal, paired_t2_test
 from bhvstats.t_test import onesample_t_test
@@ -10,15 +11,186 @@ from bhvstats.mult_hyp import (
     simes_correction,
     bonferroni_correction,
 )
-from stickytests.bhv.tree_distance import tree_distance
-from stickytests.bhv.phylo_tree import PhyloTree
+from bhvstats.tree_distance import tree_distance
+from bhvstats.phylo_tree import PhyloTree
+
 
 # TODO Update the documentation for all functions..
 
 # TODO rename to bhv_test_hs for Hotteling-Simes
 
 
-def two_sample_test_bhv(
+def two_sample_test_sticky(
+    first_sample: list[PhyloTree],
+    second_sample: list[PhyloTree],
+    directions: Union[str, ndarray] = "single_split",
+    permutation_samples: int = 49998,
+    plot_pdf: bool = False,
+) -> float:
+    """
+    Peforms a Kolmogorov-Smirnov test over a finite selection of the
+    directional derivatives of the Frechet function. The quantiles can be
+    either determined through permutations.
+
+    Parameters
+    ----------
+    first_sample : list[PhyloTree]
+        First sample of phylogenetic trees.
+    second_sample : list[PhyloTree]
+        Second sample of phylogenetic trees.
+    directions : {"single_splits", "from_data", ndarray}
+        Determines what directions are considered during testing. If an ndarray
+        is given, it is assumed that the directional derivatives are already
+        computed.
+    bootstrap_samples
+        The number of iterations for the bootstrap.
+    plot_pdf : Boolean, optional
+        If set to True, a histogram of all bootstrap/permutation statistics is
+        plotted. Default is False.
+
+    Return
+    -------
+    p_value : float
+        The p-value for the given data.
+
+    """
+    size_1 = len(first_sample)
+    size_2 = len(second_sample)
+
+    if isinstance(directions, str) and directions == "single_split":
+        cosines = directions_single_split(first_sample + second_sample)
+    elif isinstance(directions, str) and directions == "from_data":
+        cosines = directions_in_data(first_sample + second_sample)
+    elif isinstance(directions, str) and directions == "both":
+        cosines = directions_in_data(first_sample + second_sample)
+        cosines_2 = directions_single_split(first_sample + second_sample)
+        cosines = np.hstack((cosines, cosines_2))
+    elif isinstance(directions, ndarray) and directions.shape[0] == size_1 + size_2:
+        cosines = directions
+    else:
+        raise Exception("Use supported way of picking directions")
+
+    dir_derivs = (
+        -cosines
+        * np.array([tree.norm() for tree in (first_sample + second_sample)])[:, None]
+    )
+
+    statistic = compute_statistic(
+        dir_derivs, list(range(0, size_1)), list(range(size_1, size_1 + size_2))
+    )
+    p_value = 0
+    pdf_bs = []
+    for _ in range(permutation_samples):
+        indices = random.sample(range(size_1 + size_2), size_1 + size_2)
+        index_1 = indices[:size_1]
+        index_2 = indices[size_1:]
+        stat_bs = compute_statistic(dir_derivs, index_1, index_2)
+        if statistic <= stat_bs:
+            p_value += 1
+        pdf_bs.append(stat_bs)
+
+    p_value = (p_value + 1) / (permutation_samples + 1)
+
+    if plot_pdf:
+        hist = plt.hist(
+            pdf_bs, bins="auto", color="lightsteelblue", label="permutation statistics"
+        )
+        plt.vlines(statistic, 0, max(hist[0]), color="salmon", label="test statistic")
+        # plt.title("permutation test, p={}".format(p_value))
+        plt.legend()
+        plt.savefig("permutation_test.pdf", bbox_inches="tight")
+        plt.show()
+
+    return p_value
+
+
+def two_sample_test_sticky_bootstrap(
+    first_sample: list[PhyloTree],
+    second_sample: list[PhyloTree],
+    directions: Union[str, ndarray] = "single_split",
+    bootstrap_samples: int = 49998,
+    plot_pdf: bool = False,
+) -> float:
+    """
+    Peforms a Kolmogorov-Smirnov test over a finite selection of the
+    directional derivatives of the Frechet function. The quantiles can be
+    either determined through bootsrapping.
+
+    Parameters
+    ----------
+    first_sample : list[PhyloTree]
+        First sample of phylogenetic trees.
+    second_sample : list[PhyloTree]
+        Second sample of phylogenetic trees.
+    directions : {"single_splits", "from_data", ndarray}
+        Determines what directions are considered during testing. If an ndarray
+        is given, it is assumed that the directional derivatives are already
+        computed.
+    bootstrap_samples
+        The number of iterations for the bootstrap.
+    plot_pdf : Boolean, optional
+        If set to True, a histogram of all bootstrap/permutation statistics is
+        plotted. Default is False.
+
+    Return
+    -------
+    p_value : float
+        The p-value for the given data.
+
+    """
+
+    size_1 = len(first_sample)
+    size_2 = len(second_sample)
+
+    if isinstance(directions, str):
+        if directions == "single_split":
+            cosines = directions_single_split(first_sample + second_sample)
+        elif directions == "from_data":
+            cosines = directions_in_data(first_sample + second_sample)
+    elif isinstance(directions, ndarray):
+        if directions.shape[0] == size_1 + size_2:
+            cosines = directions
+        else:
+            raise IndexError(
+                "The dimensiosn of the given matrix do not match \
+                             the sample size."
+            )
+    else:
+        raise TypeError("Use supported way of picking directions")
+
+    tree_norms = np.array([tree.norm() for tree in (first_sample + second_sample)])[
+        :, None
+    ]
+    dir_derivs = -cosines * tree_norms
+
+    statistic = compute_statistic(
+        dir_derivs, list(range(0, size_1)), list(range(size_1, size_1 + size_2))
+    )
+    p_value = 0
+    pdf_bs = []
+    for _ in range(bootstrap_samples):
+        index_1 = list(np.random.choice(range(size_1 + size_2), size_1))
+        index_2 = list(np.random.choice(range(size_1 + size_2), size_2))
+        stat_bs = compute_statistic(dir_derivs, index_1, index_2)
+        if statistic <= stat_bs:
+            p_value += 1
+        pdf_bs.append(stat_bs)
+
+    p_value = p_value / bootstrap_samples
+
+    if plot_pdf:
+        hist = plt.hist(
+            pdf_bs, bins="auto", color="lightsteelblue", label="bootstrap statistics"
+        )
+        plt.vlines(statistic, 0, max(hist[0]), color="salmon", label="test statistic")
+        plt.title("bootstrap test, p={}".format(p_value))
+        plt.legend()
+        plt.show()
+
+    return p_value
+
+
+def two_sample_test_sticky_hotelling(
     first_sample: list[PhyloTree],
     second_sample: list[PhyloTree],
     ratio=0.5,
@@ -106,7 +278,7 @@ def two_sample_test_bhv(
     return p_value
 
 
-def paired_test_bhv(
+def paired_test_sticky_bhv(
     first_sample: list[PhyloTree],
     second_sample: list[PhyloTree],
     ratio=0.5,
@@ -192,70 +364,7 @@ def paired_test_bhv(
     return p_value
 
 
-def one_sample_test_bhv(
-    sample: list[PhyloTree],
-    directions="single_split",
-    correction="simes",
-    plot_pvalues: Optional[bool] = False,
-) -> float:
-    """
-    Performs a one sample test for stickiness in given directions of BHV-space.
-
-    Parameters
-    ----------
-    sample
-        The sticky sample.
-    directions : {"single_splits", "from_data"}
-        Determines what directions are considered during testing.
-    correction : {"simes", "holm"}, optional
-        The correction method for multiple hypothesis testing.
-    plot_pvalues : Boolean, optional
-        If set to True, a histogram of all individual p-values is plotted.
-        Default is False.
-
-
-    Returns
-    -------
-    p_value : float
-        The p-value for the given data.
-    """
-
-    size = len(sample)
-    if isinstance(directions, str) and directions == "single_split":
-        cosines = directions_single_split(sample)
-    elif isinstance(directions, str) and directions == "from_data":
-        cosines = directions_in_data(sample)
-    elif isinstance(directions, ndarray) and directions.shape[0] == size:
-        cosines = directions
-    else:
-        raise Exception("Use supported way of picking directions")
-    derivatives = np.zeros(cosines.shape)
-
-    for i, tree in enumerate(sample):
-        t_norm = tree.norm()
-        derivatives[i] = -t_norm * cosines[i, :]
-    p_vals = onesample_t_test(derivatives)
-
-    if plot_pvalues:
-        print(p_vals)
-        plt.hist(p_vals, bins="auto")
-        plt.show()
-
-    # multiplehypothesis correction
-    if correction == "simes":
-        p_value = simes_correction(p_vals)
-    elif correction == "holm":
-        p_value = holm_correction(p_vals)
-    else:
-        raise Exception(
-            "Please use a supported method for multiple \
-                        hypothesis correction"
-        )
-
-    return p_value
-
-
-def paired_test_bhv_univariate(
+def paired_test_sticky_univ(
     first_sample: list[PhyloTree],
     second_sample: list[PhyloTree],
     directions="single_split",
@@ -319,6 +428,70 @@ def paired_test_bhv_univariate(
             "Please use a supported method for multiple \
                         hypothesis correction"
         )
+
+    return p_value
+
+
+def bhv_test_residual(
+    first_sample: list[PhyloTree],
+    second_sample: list[PhyloTree],
+    directions: Union[str, ndarray] = "single_split",
+    permutation_samples: int = 49999,
+    plot_pdf: bool = False,
+) -> float:
+    size_1 = len(first_sample)
+    size_2 = len(second_sample)
+
+    if isinstance(directions, str) and directions == "single_split":
+        cosines = directions_single_split(first_sample + second_sample)
+    elif isinstance(directions, str) and directions == "from_data":
+        cosines = directions_in_data(first_sample + second_sample)
+    elif isinstance(directions, ndarray) and directions.shape[0] == size_1 + size_2:
+        cosines = directions
+    else:
+        raise Exception("Use supported way of picking directions")
+
+    dir_derivs = (
+        -cosines
+        * np.array([tree.norm() for tree in (first_sample + second_sample)])[:, None]
+    )
+    # np.hstack(
+    #    (
+    #        dir_derivs,
+    #        np.array([tree.norm() for tree in (first_sample + second_sample)])[:, None],
+    #    )
+    # )
+
+    statistic = compute_statistic(
+        dir_derivs, list(range(0, size_1)), list(range(size_1, size_1 + size_2))
+    )
+    residuals = copy(dir_derivs)
+    residuals[:size_1] -= np.mean(dir_derivs[:size_1], axis=0)
+    residuals[size_1:] -= np.mean(dir_derivs[size_1:], axis=0)
+    p_value = 0
+    pdf_bs = []
+    for _ in range(permutation_samples):
+        # indices = random.sample(range(size_1 + size_2), size_1 + size_2)
+        # index_1 = indices[:size_1]
+        # index_2 = indices[size_1:]
+        index_1 = random.choices(range(size_1), k=size_1)
+        index_2 = [size_1 + i for i in random.choices(range(size_2), k=size_2)]
+        # index_2 = indices[size_1:]
+        stat_bs = compute_statistic(residuals, index_1, index_2)
+        if statistic <= stat_bs:
+            p_value += 1
+        pdf_bs.append(stat_bs)
+
+    p_value = p_value / permutation_samples
+
+    if plot_pdf:
+        hist = plt.hist(
+            pdf_bs, bins="auto", color="lightsteelblue", label="bootstrap statistics"
+        )
+        plt.vlines(statistic, 0, max(hist[0]), color="salmon", label="test statistic")
+        plt.title("residual bootstrap test, p={}".format(p_value))
+        plt.legend()
+        plt.show()
 
     return p_value
 
@@ -536,3 +709,17 @@ def comp_theta(
                 cosines[i, j] = cos_alex
 
     return cosines
+
+
+def compute_statistic(
+    dir_derivs: ndarray, index_1: list[int], index_2: list[int]
+) -> float:
+    # size_1 = len(index_1)
+    # size_2 = len(index_2)
+
+    derivs_1 = np.mean(dir_derivs[index_1], axis=0)
+    derivs_2 = np.mean(dir_derivs[index_2], axis=0)
+    statistic = np.max(np.abs(derivs_1 - derivs_2))
+    # statistic = ((size_1*size_2)/(size_1 + size_2))**.5 * statistic
+
+    return statistic
