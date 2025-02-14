@@ -4,6 +4,37 @@ from bhvstats.phylo_tree import PhyloTree
 from bhvstats.forest import Forest
 
 
+def load_treefile(
+    filename: str, leaves: dict, delimiter=",", encoding="None"
+) -> list[PhyloTree]:
+    """
+    Loads a tree file and returns the trees as PhyloTree objects.
+
+    Parameters
+    ----------
+    filename : str
+        The name of the file.
+    leaves : dict
+        The correspondence for the leaves in the Newick string.
+    delimiter :
+        The delimiter used in the Newick string.
+    encoding :
+        The encoding of the file.
+
+    Returns
+    -------
+    trees : list[PhyloTree]
+        The trees as PhyloTree objects.
+    """
+    trees = []
+    with open(filename, "r", encoding=encoding) as file:
+        for line in file:
+            newick = line.strip(";\n")
+            phylo = new2phylo(newick, leaves, delimiter)
+            trees.append(phylo)
+    return trees
+
+
 def new2phylo(newick: str, leaves: dict, delimiter=",") -> PhyloTree:
     """
     Construct a phylogenetic tree from Newick representation.
