@@ -1,3 +1,8 @@
+"""
+The class PhyloPath represents a general path in BHV space. Most importantly,
+it deals with the main step of the GTP algorithm.
+"""
+
 from __future__ import annotations
 import numpy as np
 import networkx as nx
@@ -119,15 +124,11 @@ class PhyloPath:
 
         # source arcs
         for i in range(n_rem):
-            graph.add_edge(
-                "S", str(i), capacity=(block_rem[i, -1] / weight_rem) ** 2
-            )
+            graph.add_edge("S", str(i), capacity=(block_rem[i, -1] / weight_rem) ** 2)
         # add edge if two splits are incompatible
         incomp_rem, incomp_add = np.where(compatibility == 0)
         for i in range(len(incomp_rem)):
-            graph.add_edge(
-                str(incomp_rem[i]), str(n_rem + incomp_add[i]), capacity=1
-            )
+            graph.add_edge(str(incomp_rem[i]), str(n_rem + incomp_add[i]), capacity=1)
         # drain arcs
         for j in range(n_add):
             graph.add_edge(

@@ -1,18 +1,24 @@
+"""
+This module contains the classes ProxSplit and ProxSplitRandom. Both classes
+aim to find a local minimum of the directional derivatives of the Frechet
+function for a sample of with the cone point as mean.
+"""
+
 import random
 from copy import deepcopy
 import numpy as np
 from numpy import ndarray
 from scipy.optimize import fsolve, minimize
-from bhvstats.eval_geod import eval_geod
-from bhvstats.tree_distance import distance
+from bhvstats.tree_distance import distance, eval_geod
 from bhvstats.phylo_tree import PhyloTree
 
 
 class ProxSplit:
     def __init__(self, sample: list[PhyloTree], initial_guess=None):
         """
-        A class to find a local minimum for the degrees of stickiness for a
-        given sample of phylogenetic trees with the cone point as Frechet mean.
+        A class to find a local minimum for the directional derivatives of the
+        Frechet function for a given sample of phylogenetic trees with the cone
+        point as Frechet mean.
 
         Parameters
         ----------

@@ -1,11 +1,12 @@
+"""
+A class for splits in phylogenetic trees.
+"""
+
 from __future__ import annotations
 
 
 class PhyloSplit:
-    def __init__(self,
-                 lst : list,
-                 N : int
-                 ):
+    def __init__(self, lst: list, N: int):
         """
         A class for splits in phylogenetic trees.
 
@@ -21,21 +22,22 @@ class PhyloSplit:
         # save the one with 0 as first in a tuple
         l1 = lst
         l1.sort()
-        l2 =  [i for i in range(N+1) if i not in lst]
+        l2 = [i for i in range(N + 1) if i not in lst]
 
         if len(l1) == 0:
             raise Exception("The list must contain at least one integer.")
 
         if len(l1) + len(l2) != N + 1:
-            raise Exception("The list must contain unique integers in the range from 0 to N.")
+            raise Exception(
+                "The list must contain unique integers in the range from 0 to N."
+            )
 
         if 0 in l1:
             self.partition = l1, l2
         else:
             self.partition = l2, l1
 
-
-    def __str__ (self):
+    def __str__(self):
         return "{} | {}".format(self.partition[0], self.partition[1])
 
     def __lt__(self, other):
@@ -44,15 +46,11 @@ class PhyloSplit:
 
         return s12 < s22
 
-
-    def __eq__(self,
-               other : PhyloSplit
-               ) -> bool:
+    def __eq__(self, other: PhyloSplit) -> bool:
         if isinstance(other, PhyloSplit):
             return self.partition == other.partition
         else:
             return False
-
 
     def __hash__(self):
         # convert lists to tuple to make it hashable, shouldn't pose a problem
@@ -60,7 +58,6 @@ class PhyloSplit:
         # we need phylo_splits to be hashable to use it as keys in dictionaries
         # for the trees
         return hash((tuple(self.partition[0]), tuple(self.partition[1])))
-
 
     def get_split(self) -> tuple[list, list]:
         """
@@ -74,11 +71,8 @@ class PhyloSplit:
         """
         return self.partition
 
-
     # object for documentation
-    def is_compatible(self,
-                      other : PhyloSplit
-                      ) -> bool:
+    def is_compatible(self, other: PhyloSplit) -> bool:
         """
         Checks whether two splits are compatible.
 

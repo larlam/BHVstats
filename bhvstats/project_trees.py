@@ -1,3 +1,8 @@
+"""
+This module deals with the projection of a list of phylogenetic trees onto the
+orthogonal component of the tangent cone at a given reference tree.
+"""
+
 import numpy as np
 from numpy import ndarray
 from bhvstats.phylo_tree import PhyloTree
@@ -71,8 +76,7 @@ def surviving_splits(tree: PhyloTree) -> list[PhyloSplit]:
     tree_mat_pr = tree_mat @ projmat
     Nproj = projmat.shape[1] - 1
     j = np.where(
-        np.abs(np.sum(tree_mat_pr, axis=1) - 2 - (Nproj - 3) / 2)
-        <= (Nproj - 3) / 2
+        np.abs(np.sum(tree_mat_pr, axis=1) - 2 - (Nproj - 3) / 2) <= (Nproj - 3) / 2
     )[0]
     for s in j:
         surviving.append(vector_to_split(tree_mat[s], leafcount))

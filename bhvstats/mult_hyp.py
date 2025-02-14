@@ -1,3 +1,7 @@
+"""
+Some functions for multiple hypothesis testing.
+"""
+
 import numpy as np
 from numpy import ndarray
 

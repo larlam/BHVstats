@@ -1,17 +1,22 @@
+"""
+This module contains the class DerivDescent for finding a local minimum for the
+directional derivatives of the Frechet function.
+"""
+
 import random
 from copy import deepcopy
 import numpy as np
 from numpy import ndarray
-from bhvstats.eval_geod import eval_geod
-from bhvstats.tree_distance import distance
+from bhvstats.tree_distance import distance, eval_geod
 from bhvstats.phylo_tree import PhyloTree
 
 
-class DegreeDescent:
+class DerivDescent:
     def __init__(self, sample: list[PhyloTree], initial_guess=None):
         """
-        A class to find a local minimum for the degrees of stickiness for a
-        given sample of phylogenetic trees with the cone point as Frechet mean.
+        A class to find a local minimum for the directional derivatives of the
+        Frechet function given sample of phylogenetic trees with the cone point
+        as Frechet mean.
 
         Parameters
         ----------

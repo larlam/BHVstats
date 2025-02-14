@@ -1,3 +1,7 @@
+"""
+A class for geodesics between two trees which do not share any splits.
+"""
+
 import numpy as np
 from bhvstats.phylo_path import PhyloPath
 from bhvstats.phylo_block import PhyloBlock

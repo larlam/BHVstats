@@ -1,3 +1,7 @@
+"""
+This module contains the class PhyloTree, which represents a phylogenetic tree.
+"""
+
 # Classes for phylogenetic trees and their splits
 # to use for testing in BHV space
 from __future__ import annotations

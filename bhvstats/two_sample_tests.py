@@ -1,3 +1,8 @@
+"""
+This module contains functions for two-sample tests in the space of phylogenetic
+trees for two samples with Frechet means sticking to the same topology.
+"""
+
 from typing import Optional, Union
 import random
 import numpy as np

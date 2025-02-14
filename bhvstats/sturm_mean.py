@@ -1,6 +1,10 @@
+"""
+An implementation of Sturm's algorithm for approximating the Frechet mean via
+inductive means.
+"""
+
 import random
-from bhvstats.tree_distance import distance
-from bhvstats.eval_geod import eval_geod
+from bhvstats.tree_distance import distance, eval_geod
 from bhvstats.phylo_tree import PhyloTree
 
 

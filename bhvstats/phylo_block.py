@@ -1,3 +1,7 @@
+"""
+This module contains the PhyloBlock class for computing geodesics in tree space.
+"""
+
 import numpy as np
 from typing import Optional
 from bhvstats.phylo_split import PhyloSplit

@@ -1,3 +1,9 @@
+"""
+This module is home to the Forest class, which is a subclass of the NetworkX
+Graph class. It is mainly used to for conversion of trees to to PhyloTree 
+objects.
+"""
+
 import networkx as nx
 import numpy as np
 from networkx import Graph

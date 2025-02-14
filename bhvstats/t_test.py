@@ -1,3 +1,7 @@
+"""
+This module contains functions for performing t-tests.
+"""
+
 from typing import Optional
 import numpy as np
 from scipy.stats import t

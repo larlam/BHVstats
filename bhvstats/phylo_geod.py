@@ -1,3 +1,8 @@
+"""
+This module contains the class PhyloGeod, which represents a geodesic path
+between two trees.
+"""
+
 import numpy as np
 from bhvstats.phylo_simple_geod import PhyloSimpleGeod
 from bhvstats.phylo_split import PhyloSplit
@@ -92,9 +97,7 @@ class PhyloGeod:
 
             # lastly, add common splits
             for com in self.commonsplits.keys():
-                lcom = (1 - t) * self.tree1.splits[com] + t * self.tree2.splits[
-                    com
-                ]
+                lcom = (1 - t) * self.tree1.splits[com] + t * self.tree2.splits[com]
                 g_t.add_split(com, lcom)
 
         return g_t
